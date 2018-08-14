@@ -1,0 +1,18 @@
+
+class CardList:
+	def __init__(self):
+		self.bla = 1
+
+	def getPlaylist(self, card):
+		print "huhu"
+		print "Searching for" + card
+		if card == "32243192163":
+			return "Vogelhochzeit"
+		elif card == "100208171121":
+			return "Bibi01"
+		else:
+			print "Card not found"
+			return ' '
+
+	def add_Playlist(self,card,plist):
+		self.bla = 2

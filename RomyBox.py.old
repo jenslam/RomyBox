@@ -1,0 +1,56 @@
+#!/usr/bin/python
+from CardList import CardList
+from Reader import Reader
+from Player import Player
+from logger import Logger
+import sys
+import RPi.GPIO as GPIO
+import signal
+import time
+
+
+reader = Reader()
+cardlist = CardList()
+player = Player()
+
+continue_reading = True
+
+# Capture SIGINT for cleanup when the script is aborted
+def end_read(signal,frame):
+	global continue_reading
+	print "Ctrl+C captured, ending read."
+	continue_reading = False
+	GPIO.cleanup()
+
+def startup():
+	global player	
+	player.load("Startup")
+	Logger.logr.info("Play Start up sound")
+
+# Hook the SIGINT
+signal.signal(signal.SIGINT, end_read)
+
+startup()
+Logger.logr.info('Ready: place a card on top of the reader')
+
+last_card = ' '
+
+while continue_reading:
+	try:
+		card = reader.readCard()
+		if card != ' ':
+			if card != last_card:
+				print last_card, card
+				plist = cardlist.getPlaylist(card)
+				if plist != '':
+					Logger.logr.info("Starte Playlist: %s ", plist)
+					player.load(plist)
+				last_card = card
+			else:
+				Logger.logr.info("Laeuft schon.. Locker bleiben")
+		time.sleep(1)
+	except KeyboardInterrupt:
+		Logger.logr.info("Programm Ende")
+		sys.exit(0)
+	except:
+		pass
